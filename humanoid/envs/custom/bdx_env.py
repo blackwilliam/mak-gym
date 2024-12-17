@@ -97,22 +97,38 @@ class BdXBotLFreeEnv(LeggedRobot):
         sin_pos = torch.sin(2 * torch.pi * phase)
         sin_pos_l = sin_pos.clone()
         sin_pos_r = sin_pos.clone()
-        self.ref_dof_pos = torch.zeros_like(self.dof_pos)
-        scale_1 = self.cfg.rewards.target_joint_pos_scale
-        scale_2 = 2 * scale_1
-        # left foot stance phase set to default joint pos
-        sin_pos_l[sin_pos_l > 0] = 0
-        self.ref_dof_pos[:, 2] = sin_pos_l * scale_1
-        self.ref_dof_pos[:, 3] = sin_pos_l * scale_2
-        self.ref_dof_pos[:, 4] = sin_pos_l * scale_1
-        # right foot stance phase set to default joint pos
-        sin_pos_r[sin_pos_r < 0] = 0
-        self.ref_dof_pos[:, 8] = sin_pos_r * scale_1
-        self.ref_dof_pos[:, 9] = sin_pos_r * scale_2
-        self.ref_dof_pos[:, 10] = sin_pos_r * scale_1
-        # Double support phase
-        self.ref_dof_pos[torch.abs(sin_pos) < 0.1] = 0
 
+        self.ref_dof_pos = torch.zeros_like(self.dof_pos)
+        self.ref_dof_pos[:, 2] = -0.2  # left hip pitch default
+        self.ref_dof_pos[:, 3] = 0.3  # left knee default
+        self.ref_dof_pos[:, 4] = -0.1  # left ankle default
+        self.ref_dof_pos[:, 8] = -0.2  # right hip pitch default
+        self.ref_dof_pos[:, 9] = 0.3  # right knee default
+        self.ref_dof_pos[:, 10] = -0.1  # right ankle default
+
+        scale_hip = self.cfg.rewards.target_joint_pos_scale
+        scale_knee = 2.2 * scale_hip  # Increased knee motion for better ground clearance
+        scale_ankle = 1.5 * scale_hip  # Moderate ankle motion
+
+        # Left leg swing phase (sin_pos > 0)
+        swing_mask_l = (sin_pos > 0).float()
+        self.ref_dof_pos[:, 2] += swing_mask_l * sin_pos * scale_hip  # hip pitch
+        self.ref_dof_pos[:, 3] += swing_mask_l * sin_pos * scale_knee  # knee
+        self.ref_dof_pos[:, 4] += swing_mask_l * sin_pos * scale_ankle  # ankle
+
+        # Right leg swing phase (sin_pos < 0)
+        swing_mask_r = (sin_pos < 0).float()
+        self.ref_dof_pos[:, 8] += swing_mask_r * -sin_pos * scale_hip  # hip pitch
+        self.ref_dof_pos[:, 9] += swing_mask_r * -sin_pos * scale_knee  # knee
+        self.ref_dof_pos[:, 10] += swing_mask_r * -sin_pos * scale_ankle  # ankle
+
+        # Smooth transition in double support phase
+        double_support_mask = (torch.abs(sin_pos) < 0.1).float()
+        transition_factor = 1 - double_support_mask
+        self.ref_dof_pos = self.ref_dof_pos * transition_factor.unsqueeze(1) + \
+                           self.default_joint_pd_target * double_support_mask.unsqueeze(1)
+
+        # Convert to action space
         self.ref_action = 2 * self.ref_dof_pos
 
     def create_sim(self):
@@ -357,12 +373,36 @@ class BdXBotLFreeEnv(LeggedRobot):
         on penalizing deviation in yaw and roll directions. Excludes yaw and roll from the main penalty.
         """
         joint_diff = self.dof_pos - self.default_joint_pd_target
-        left_yaw_roll = joint_diff[:, :2]
-        right_yaw_roll = joint_diff[:, 6: 8]
-        yaw_roll = torch.norm(left_yaw_roll, dim=1) + torch.norm(right_yaw_roll,
-                                                                 dim=1)
-        yaw_roll = torch.clamp(yaw_roll - 0.1, 0, 50)
-        return torch.exp(-yaw_roll * 100) - 0.01 * torch.norm(joint_diff, dim=1)
+        left_yaw_roll = joint_diff[:, :2]  # left hip yaw, roll
+        left_pitch_knee = joint_diff[:, 2:4]  # left hip pitch, knee
+        left_ankle = joint_diff[:, 4:5]  # left ankle
+
+        right_yaw_roll = joint_diff[:, 6:8]  # right hip yaw, roll
+        right_pitch_knee = joint_diff[:, 8:10]  # right hip pitch, knee
+        right_ankle = joint_diff[:, 10:]  # right ankle
+
+        # yaw_roll = torch.norm(left_yaw_roll, dim=1) + torch.norm(right_yaw_roll,
+        #                                                          dim=1)
+        # yaw_roll = torch.clamp(yaw_roll - 0.1, 0, 50)
+        # return torch.exp(-yaw_roll * 100) - 0.01 * torch.norm(joint_diff, dim=1)
+        stability_deviation = torch.norm(left_yaw_roll, dim=1) + torch.norm(right_yaw_roll, dim=1)
+        stability_deviation = torch.clamp(stability_deviation - 0.05, 0, 50)  # Reduced threshold for tighter control
+
+        # Calculate posture deviations (pitch and knee)
+        posture_deviation = torch.norm(left_pitch_knee, dim=1) + torch.norm(right_pitch_knee, dim=1)
+
+        # Calculate ankle orientation deviations
+        ankle_deviation = torch.norm(left_ankle, dim=1) + torch.norm(right_ankle, dim=1)
+
+        # Combine rewards with different weights
+        stability_reward = torch.exp(-stability_deviation * 120)  # Increased penalty for stability
+        posture_reward = torch.exp(-posture_deviation * 80)  # Moderate penalty for posture
+        ankle_reward = torch.exp(-ankle_deviation * 60)  # Lower penalty for ankles
+
+        # Small penalty for overall deviation to maintain smoothness
+        smoothness_penalty = -0.008 * torch.norm(joint_diff, dim=1)
+
+        return 0.5 * stability_reward + 0.3 * posture_reward + 0.2 * ankle_reward + smoothness_penalty
 
     def _reward_base_height(self):
         """

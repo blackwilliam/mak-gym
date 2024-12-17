@@ -82,13 +82,13 @@ class BdXBotLCfg(LeggedRobotCfg):
         num_privileged_obs = int(c_frame_stack * single_num_privileged_obs)
         num_actions = 12
         num_envs = 4096
-        episode_length_s = 24     # episode length in seconds
+        episode_length_s = 30     # episode length in seconds
         use_ref_actions = False   # speed up training by using reference actions
 
     class safety:
         # safety factors
-        pos_limit = 1.0
-        vel_limit = 1.0
+        pos_limit = 0.95
+        vel_limit = 0.9
         torque_limit = 0.85
 
     class asset(LeggedRobotCfg.asset):
@@ -108,7 +108,7 @@ class BdXBotLCfg(LeggedRobotCfg):
     class terrain(LeggedRobotCfg.terrain):
         mesh_type = 'plane'
         # mesh_type = 'trimesh'
-        curriculum = False
+        curriculum = True
         # rough terrain only:
         measure_heights = False
         static_friction = 0.6
@@ -135,40 +135,41 @@ class BdXBotLCfg(LeggedRobotCfg):
             height_measurements = 0.1
 
     class init_state(LeggedRobotCfg.init_state):
-        pos = [0.0, 0.0, 0.95]
+        pos = [0.0, 0.0, 0.92]
 
         default_joint_angles = {  # = target angles [rad] when action = 0.0
             'left_hip_yaw': 0.,
-            'left_hip_roll': 0.,
-            'left_hip_pitch': 0.,
-            'left_knee': 0.,
-            'left_ankle': 0.,
+            'left_hip_roll': 0.05,
+            'left_hip_pitch': -0.2,
+            'left_knee': 0.3,
+            'left_ankle': -0.1,
+
             'right_hip_yaw': 0.,
-            'right_hip_roll': 0.,
-            'right_hip_pitch': 0.,
-            'right_knee': 0.,
-            'right_ankle': 0.,
+            'right_hip_roll': -0.05,
+            'right_hip_pitch': -0.2,
+            'right_knee': 0.3,
+            'right_ankle': -0.1,
         }
 
     class control(LeggedRobotCfg.control):
         # PD Drive parameters:
         stiffness = {
-            'hip_yaw': 200.0,  # 髋部偏航需要适中刚度
-            'hip_roll': 250.0,  # 髋部滚动需要较大刚度保持稳定
-            'hip_pitch': 350.0,  # 髋部俯仰需要大刚度支撑身体
-            'knee': 350.0,  # 膝盖需要大刚度支撑身体
-            'ankle': 200.0,  # 踝关节需要适中刚度保持平衡
+            'hip_yaw': 150.0,  # 髋部偏航需要适中刚度
+            'hip_roll': 200.0,  # 髋部滚动需要较大刚度保持稳定
+            'hip_pitch': 300.0,  # 髋部俯仰需要大刚度支撑身体
+            'knee': 250.0,  # 膝盖需要大刚度支撑身体
+            'ankle': 150.0,  # 踝关节需要适中刚度保持平衡
         }
         damping = {
-            'hip_yaw': 10.0,
-            'hip_roll': 12.0,
+            'hip_yaw': 8.0,
+            'hip_roll': 10.0,
             'hip_pitch': 12.0,
-            'knee': 12.0,
-            'ankle': 10.0,
+            'knee': 10.0,
+            'ankle': 8.0,
         }
 
         # action scale: target angle = actionScale * action + defaultAngle
-        action_scale = 0.25
+        action_scale = 0.2
         # decimation: Number of control action updates @ sim DT per policy DT
         decimation = 4  # 100hz
 
@@ -211,31 +212,31 @@ class BdXBotLCfg(LeggedRobotCfg):
         heading_command = True  # if true: compute ang vel command from heading error
 
         class ranges:
-            lin_vel_x = [-0.3, 0.6]   # min max [m/s]
-            lin_vel_y = [-0.3, 0.3]   # min max [m/s]
-            ang_vel_yaw = [-0.3, 0.3] # min max [rad/s]
+            lin_vel_x = [-0.2, 0.5]   # min max [m/s]
+            lin_vel_y = [-0.2, 0.2]   # min max [m/s]
+            ang_vel_yaw = [-0.25, 0.25] # min max [rad/s]
             heading = [-3.14, 3.14]
 
     class rewards:
-        base_height_target = 0.89
+        base_height_target = 0.92
         min_dist = 0.2
         max_dist = 0.5
         # put some settings here for LLM parameter tuning
-        target_joint_pos_scale = 0.17    # rad
-        target_feet_height = 0.06        # m
-        cycle_time = 0.64                # sec
+        target_joint_pos_scale = 0.15    # rad
+        target_feet_height = 0.05        # m
+        cycle_time = 0.7                # sec
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
         # tracking reward = exp(error*sigma)
         tracking_sigma = 5
         max_contact_force = 700  # Forces above this value are penalized
-        soft_dof_pos_limit = 0.7  # 根据关节限位±0.7853调整
-        soft_dof_vel_limit = 28.0  # 略小于关节速度限制30
-        soft_torque_limit = 22.0  # 略小于关节力矩限制23.7
+        soft_dof_pos_limit = 0.75  # 根据关节限位±0.7853调整
+        soft_dof_vel_limit = 27.0  # 略小于关节速度限制30
+        soft_torque_limit = 20.0  # 略小于关节力矩限制23.7
 
         class scales:
             # reference motion tracking
-            joint_pos = 0.2
+            joint_pos = 0.25
             feet_clearance = 1.
             feet_contact_number = 1.2
             # gait
@@ -246,20 +247,20 @@ class BdXBotLCfg(LeggedRobotCfg):
             # contact
             feet_contact_forces = -0.01
             # vel tracking
-            tracking_lin_vel = 1.0
-            tracking_ang_vel = 0.5
+            tracking_lin_vel = 0.8
+            tracking_ang_vel = 0.4
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             low_speed = 0.2
             track_vel_hard = 0.5
             # base pos
             default_joint_pos = 0.5
-            orientation = 1.
-            base_height = 0.2
+            orientation = 1.2
+            base_height = 0.3
             base_acc = 0.2
             # energy
             action_smoothness = -0.002
-            action_rate = -0.001
-            torques = -0.0002
+            action_rate = -0.002
+            torques = -0.0003
             dof_vel = -5e-4
             dof_acc = -1e-7
             collision = -1.
@@ -276,7 +277,7 @@ class BdXBotLCfg(LeggedRobotCfg):
         clip_actions = 18.
 
 
-class SimBotLCfgPPO(LeggedRobotCfgPPO):
+class BdXBotLCfgPPO(LeggedRobotCfgPPO):
     seed = 5
     runner_class_name = 'OnPolicyRunner'   # DWLOnPolicyRunner
 
@@ -301,7 +302,7 @@ class SimBotLCfgPPO(LeggedRobotCfgPPO):
 
         # logging
         save_interval = 100  # Please check for potential savings every `save_interval` iterations.
-        experiment_name = 'SimBot_ppo'
+        experiment_name = 'BdXBot_ppo'
         run_name = ''
         # Load and resume
         resume = False
