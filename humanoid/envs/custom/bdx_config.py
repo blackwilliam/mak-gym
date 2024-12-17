@@ -67,7 +67,7 @@ from humanoid.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCf
 #     num_mini_batches = 4      # 小批量数量
 
 
-class HumanoidBotLCfg(LeggedRobotCfg):
+class BdXBotLCfg(LeggedRobotCfg):
     """
     Configuration class for the XBotL humanoid robot.
     """
