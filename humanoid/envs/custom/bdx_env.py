@@ -10,6 +10,7 @@ from humanoid.utils.terrain import Terrain
 
 
 class BdXBotLFreeEnv(LeggedRobot):
+
     '''
     XBotLFreeEnv is a class that represents a custom environment for a legged robot.
 

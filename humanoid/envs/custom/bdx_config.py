@@ -68,6 +68,7 @@ from humanoid.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCf
 
 
 class BdXBotLCfg(LeggedRobotCfg):
+
     """
     Configuration class for the XBotL humanoid robot.
     """
