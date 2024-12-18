@@ -76,11 +76,11 @@ class BdXBotLCfg(LeggedRobotCfg):
         # change the observation dim
         frame_stack = 15
         c_frame_stack = 3
-        num_single_obs = 47
+        num_single_obs = 41
         num_observations = int(frame_stack * num_single_obs)
-        single_num_privileged_obs = 73
+        single_num_privileged_obs = 65
         num_privileged_obs = int(c_frame_stack * single_num_privileged_obs)
-        num_actions = 12
+        num_actions = 10
         num_envs = 4096
         episode_length_s = 30     # episode length in seconds
         use_ref_actions = False   # speed up training by using reference actions
@@ -135,18 +135,18 @@ class BdXBotLCfg(LeggedRobotCfg):
             height_measurements = 0.1
 
     class init_state(LeggedRobotCfg.init_state):
-        pos = [0.0, 0.0, 0.92]
+        pos = [0.0, 0.0, 0.0]
 
         default_joint_angles = {  # = target angles [rad] when action = 0.0
             'left_hip_yaw': 0.,
-            'left_hip_roll': 0.05,
-            'left_hip_pitch': -0.2,
+            'left_hip_roll': 0.0,
+            'left_hip_pitch': -0.3,
             'left_knee': 0.3,
             'left_ankle': -0.1,
 
             'right_hip_yaw': 0.,
-            'right_hip_roll': -0.05,
-            'right_hip_pitch': -0.2,
+            'right_hip_roll': 0.0,
+            'right_hip_pitch': -0.3,
             'right_knee': 0.3,
             'right_ankle': -0.1,
         }
@@ -176,6 +176,7 @@ class BdXBotLCfg(LeggedRobotCfg):
     class sim(LeggedRobotCfg.sim):
         dt = 0.001  # 1000 Hz
         substeps = 1
+        gravity = [0.0, 0.0, -9.81]
         up_axis = 1  # 0 is y, 1 is z
 
         class physx(LeggedRobotCfg.sim.physx):
@@ -218,9 +219,9 @@ class BdXBotLCfg(LeggedRobotCfg):
             heading = [-3.14, 3.14]
 
     class rewards:
-        base_height_target = 0.92
+        base_height_target = 0.0
         min_dist = 0.2
-        max_dist = 0.5
+        max_dist = 0.7
         # put some settings here for LLM parameter tuning
         target_joint_pos_scale = 0.15    # rad
         target_feet_height = 0.05        # m
@@ -228,7 +229,7 @@ class BdXBotLCfg(LeggedRobotCfg):
         # if true negative total rewards are clipped at zero (avoids early termination problems)
         only_positive_rewards = True
         # tracking reward = exp(error*sigma)
-        tracking_sigma = 5
+        tracking_sigma = 4
         max_contact_force = 700  # Forces above this value are penalized
         soft_dof_pos_limit = 0.75  # 根据关节限位±0.7853调整
         soft_dof_vel_limit = 27.0  # 略小于关节速度限制30
@@ -243,7 +244,7 @@ class BdXBotLCfg(LeggedRobotCfg):
             feet_air_time = 1.
             foot_slip = -0.05
             feet_distance = 0.2
-            knee_distance = 0.2
+            # knee_distance = 0.2
             # contact
             feet_contact_forces = -0.01
             # vel tracking
@@ -259,7 +260,6 @@ class BdXBotLCfg(LeggedRobotCfg):
             base_acc = 0.2
             # energy
             action_smoothness = -0.002
-            action_rate = -0.002
             torques = -0.0003
             dof_vel = -5e-4
             dof_acc = -1e-7

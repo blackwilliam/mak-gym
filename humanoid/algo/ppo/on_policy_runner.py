@@ -42,6 +42,8 @@ from humanoid.algo.vec_env import VecEnv
 from torch.utils.tensorboard import SummaryWriter
 
 
+WANDB_API_KEY = '7d279298345477cd8847f9699594526c9894ffdc'
+
 class OnPolicyRunner:
 
     def __init__(self, env: VecEnv, train_cfg, log_dir=None, device="cpu"):
@@ -94,7 +96,7 @@ class OnPolicyRunner:
         # initialize writer
         if self.log_dir is not None and self.writer is None:
             wandb.init(
-                project="XBot",
+                project="BdXBot",
                 sync_tensorboard=True,
                 name=self.wandb_run_name,
                 config=self.all_cfg,
