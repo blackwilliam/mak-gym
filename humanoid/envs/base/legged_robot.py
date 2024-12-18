@@ -54,6 +54,7 @@ def get_euler_xyz_tensor(quat):
     euler_xyz[euler_xyz > np.pi] -= 2 * np.pi
     return euler_xyz
 
+
 class LeggedRobot(BaseTask):
     def __init__(self, cfg: LeggedRobotCfg, sim_params, physics_engine, sim_device, headless):
         """ Parses the provided config file,
@@ -107,7 +108,6 @@ class LeggedRobot(BaseTask):
         if self.privileged_obs_buf is not None:
             self.privileged_obs_buf = torch.clip(self.privileged_obs_buf, -clip_obs, clip_obs)
         return self.obs_buf, self.privileged_obs_buf, self.rew_buf, self.reset_buf, self.extras
-
 
     def reset(self):
         """ Reset all robots"""
