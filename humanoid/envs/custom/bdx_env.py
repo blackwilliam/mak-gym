@@ -178,29 +178,35 @@ class BdXBotLFreeEnv(LeggedRobot):
         return super().step(actions)
 
     def compute_observations(self):
-
+        # 首先获取当前步态的相位信息
         phase = self._get_phase()
+        # 计算参考状态（目标关节位置）
         self.compute_ref_state()
 
         sin_pos = torch.sin(2 * torch.pi * phase).unsqueeze(1)
         cos_pos = torch.cos(2 * torch.pi * phase).unsqueeze(1)
 
+        # 获取支撑相掩码，表示哪只脚在支撑相（1表示支撑相，0表示摆动相）
         stance_mask = self._get_gait_phase()
+        # 计算接触掩码，判断脚是否与地面接触（力大于5N视为接触）
         contact_mask = self.contact_forces[:, self.feet_indices, 2] > 5.
 
+        # 将相位信息（sin_pos, cos_pos）和运动指令（速度等）组合在一起
         self.command_input = torch.cat(
-                (sin_pos, cos_pos, self.commands[:, :3] * self.commands_scale),
+                (sin_pos,
+                 cos_pos,
+                 self.commands[:, :3] * self.commands_scale),
                 dim=1)
-
+        # 计算当前关节位置与默认位置的差值，并进行缩放
         q = (self.dof_pos - self.default_dof_pos) * self.obs_scales.dof_pos
+        # 计算关节速度并缩放
         dq = self.dof_vel * self.obs_scales.dof_vel
-
+        # 计算当前关节位置与目标位置的差值
         diff = self.dof_pos - self.ref_dof_pos
 
         self.privileged_obs_buf = torch.cat((
             self.command_input,  # 2 + 3
-            (self.dof_pos - self.default_joint_pd_target) * \
-            self.obs_scales.dof_pos,  # 12
+            (self.dof_pos - self.default_joint_pd_target) * self.obs_scales.dof_pos,  # 12
             self.dof_vel * self.obs_scales.dof_vel,  # 12
             self.actions,  # 12
             diff,  # 12
