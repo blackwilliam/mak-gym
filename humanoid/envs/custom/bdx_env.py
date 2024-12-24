@@ -91,7 +91,6 @@ class BdXBotLFreeEnv(LeggedRobot):
         stance_mask[:, 1] = sin_pos < 0
         # Double support phase
         stance_mask[torch.abs(sin_pos) < 0.1] = 1
-
         return stance_mask
 
     def compute_ref_state(self):

@@ -31,6 +31,7 @@
 
 from .base_config import BaseConfig
 
+
 class LeggedRobotCfg(BaseConfig):
     class env:
         num_envs = 4096
@@ -118,7 +119,6 @@ class LeggedRobotCfg(BaseConfig):
         armature = 0.
         thickness = 0.01
 
-
     class domain_rand:
         randomize_friction = True
         friction_range = [0.5, 1.25]
@@ -127,7 +127,6 @@ class LeggedRobotCfg(BaseConfig):
         push_robots = True
         push_interval_s = 15
         max_push_vel_xy = 1.
-
 
     class rewards:
         class scales:
@@ -196,6 +195,7 @@ class LeggedRobotCfg(BaseConfig):
             max_gpu_contact_pairs = 2**23 #2**24 -> needed for 8000 envs and more
             default_buffer_size_multiplier = 5
             contact_collection = 2 # 0: never, 1: last sub-step, 2: all sub-steps (default=2)
+
 
 class LeggedRobotCfgPPO(BaseConfig):
     seed = 1

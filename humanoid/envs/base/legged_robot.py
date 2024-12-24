@@ -41,8 +41,7 @@ import torch
 
 from humanoid import LEGGED_GYM_ROOT_DIR
 from humanoid.envs.base.base_task import BaseTask
-# from humanoid.utils.terrain import Terrain
-from humanoid.utils.math import quat_apply_yaw, wrap_to_pi, torch_rand_sqrt_float
+from humanoid.utils.math import quat_apply_yaw, wrap_to_pi
 from humanoid.utils.helpers import class_to_dict
 from .legged_robot_config import LeggedRobotCfg
 
@@ -83,25 +82,30 @@ class LeggedRobot(BaseTask):
         self.init_done = True
 
     def step(self, actions):
-        """ Apply actions, simulate, call self.post_physics_step()
-
-        Args:
-            actions (torch.Tensor): Tensor of shape (num_envs, num_actions_per_env)
-        """
+        # 获取动作裁剪范围的配置值
+        # 将输入动作限制在[-clip_actions, clip_actions]范围内,并移到指定设备(CPU/GPU)
         clip_actions = self.cfg.normalization.clip_actions
         self.actions = torch.clip(actions, -clip_actions, clip_actions).to(self.device)
         # step physics and render each frame
         self.render()
         for _ in range(self.cfg.control.decimation):
+            # 调用 _compute_torques 方法将动作转换为关节扭矩
+            # 重塑扭矩张量以匹配期望的形状
             self.torques = self._compute_torques(self.actions).view(self.torques.shape)
+            # 将计算得到的扭矩应用到仿真环境中的机器人关节上。
             self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(self.torques))
 
             self.gym.simulate(self.sim)
             if self.device == 'cpu':
                 self.gym.fetch_results(self.sim, True)
+            # 更新关节状态张量,获取最新的关节位置和速度信息
             self.gym.refresh_dof_state_tensor(self.sim)
+
+        # 执行物理仿真步骤后的必要处理,如计算观察、奖励等。
         self.post_physics_step()
 
+        # 将观察值限制在配置的范围内
+        # 如果存在特权观察,也进行相同的裁剪
         # return clipped obs, clipped states (None), rewards, dones and infos
         clip_obs = self.cfg.normalization.clip_observations
         self.obs_buf = torch.clip(self.obs_buf, -clip_obs, clip_obs)
@@ -117,46 +121,64 @@ class LeggedRobot(BaseTask):
         return obs, privileged_obs
     
     def post_physics_step(self):
-        """ check terminations, compute observations and rewards
-            calls self._post_physics_step_callback() for common computations 
-            calls self._draw_debug_vis() if needed
-        """
+        # 刷新各种状态张量，从物理引擎获取最新数据
+        # 更新机器人根部状态
         self.gym.refresh_actor_root_state_tensor(self.sim)
+        # 更新接触力信息
         self.gym.refresh_net_contact_force_tensor(self.sim)
+        # 更新刚体状态
         self.gym.refresh_rigid_body_state_tensor(self.sim)
 
+        # 当前回合长度加1
         self.episode_length_buf += 1
+        # 总步数计数器加1
         self.common_step_counter += 1
 
-        # prepare quantities
+        # 处理机器人状态量：
+        # 提取并处理基础状态量
+        # 提取基座四元数(表示旋转)
         self.base_quat[:] = self.root_states[:, 3:7]
+        # 将全局坐标系下的线速度转换到机器人本体坐标系
         self.base_lin_vel[:] = quat_rotate_inverse(self.base_quat, self.root_states[:, 7:10])
+        # 将全局坐标系下的角速度转换到机器人本体坐标系
         self.base_ang_vel[:] = quat_rotate_inverse(self.base_quat, self.root_states[:, 10:13])
+        # 将重力向量投影到机器人本体坐标系
         self.projected_gravity[:] = quat_rotate_inverse(self.base_quat, self.gravity_vec)
+        # 将四元数转换为欧拉角表示
         self.base_euler_xyz = get_euler_xyz_tensor(self.base_quat)
 
         self._post_physics_step_callback()
 
-        # compute observations, rewards, resets, ...
+        # 检查是否需要终止当前回合
         self.check_termination()
+        # 计算奖励值
         self.compute_reward()
+        # 获取需要重置的环境ID
         env_ids = self.reset_buf.nonzero(as_tuple=False).flatten()
+        # 重置这些环境
         self.reset_idx(env_ids)
+        # 计算观察值
         self.compute_observations() # in some cases a simulation step might be required to refresh some obs (for example body positions)
-
+        # 保存上一步的状态，用于计算变化或历史信息
+        # 保存上上步动作
         self.last_last_actions[:] = torch.clone(self.last_actions[:])
+        # 保存上一步动作
         self.last_actions[:] = self.actions[:]
+        # 保存上一步关节速度
         self.last_dof_vel[:] = self.dof_vel[:]
+        # 保存上一步根部速度
         self.last_root_vel[:] = self.root_states[:, 7:13]
+        # 保存上一步刚体状态
         self.last_rigid_state[:] = self.rigid_state[:]
 
-        if self.viewer and self.enable_viewer_sync and self.debug_viz:
-            self._draw_debug_vis()
-
     def check_termination(self):
-        """ Check if environments need to be reset
-        """
+        # 接触力终止条件:
+        # 如果这些部位的接触力大于1.0，就会触发终止
+        # 通常用于检测机器人是否摔倒或发生碰撞
         self.reset_buf = torch.any(torch.norm(self.contact_forces[:, self.termination_contact_indices, :], dim=-1) > 1., dim=1)
+        # 时间超时终止条件:
+        # 当前回合运行的步数
+        # 允许的最大步数 如果超过最大步数，就会触发终止
         self.time_out_buf = self.episode_length_buf > self.max_episode_length # no terminal reward for time-outs
         self.reset_buf |= self.time_out_buf
 
@@ -268,7 +290,6 @@ class LeggedRobot(BaseTask):
 
             self.env_frictions[env_id] = self.friction_coeffs[env_id]
         return props
-    
 
     def _process_dof_props(self, props, env_id):
         """ Callback allowing to store/change/randomize the DOF properties of each environment.
@@ -302,15 +323,20 @@ class LeggedRobot(BaseTask):
         return props
     
     def _post_physics_step_callback(self):
-        """ Callback called before computing terminations, rewards, and observations
-            Default behaviour: Compute ang vel command based on target and heading, compute measured terrain heights and randomly push robots
-        """
-        # 
+        # 计算哪些环境需要重新采样命令
+        # resampling_time/self.dt：计算多少步后重新采样
+        # 使用取模(%)操作判断是否到达重采样时间点
+        # nonzero()获取需要重采样的环境ID
         env_ids = (self.episode_length_buf % int(self.cfg.commands.resampling_time / self.dt)==0).nonzero(as_tuple=False).flatten()
+        # 对选中的环境重新采样运动命令
+        # 可能包括速度、方向等控制指令
         self._resample_commands(env_ids)
         if self.cfg.commands.heading_command:
+            # 计算机器人当前朝向，将前向向量从机器人坐标系转换到世界坐标系
             forward = quat_apply(self.base_quat, self.forward_vec)
+            # 计算航向角
             heading = torch.atan2(forward[:, 1], forward[:, 0])
+            # 更新航向命令
             self.commands[:, 2] = torch.clip(0.5*wrap_to_pi(self.commands[:, 3] - heading), -1., 1.)
 
         if self.cfg.terrain.measure_heights:
@@ -335,27 +361,38 @@ class LeggedRobot(BaseTask):
         # set small commands to zero
         self.commands[env_ids, :2] *= (torch.norm(self.commands[env_ids, :2], dim=1) > 0.2).unsqueeze(1)
 
-
-
     def _compute_torques(self, actions):
-        """ Compute torques from actions.
-            Actions can be interpreted as position or velocity targets given to a PD controller, or directly as scaled torques.
-            [NOTE]: torques must have the same dimension as the number of DOFs, even if some DOFs are not actuated.
-
-        Args:
-            actions (torch.Tensor): Actions
-
-        Returns:
-            [torch.Tensor]: Torques sent to the simulation
-        """
-        # pd controller
+        # 1. 动作缩放 将原始动作乘以缩放因子(action_scale),
+        # 将规范化的动作值映射到实际的关节空间范围, 动作的幅度大小
         actions_scaled = actions * self.cfg.control.action_scale
+        # 2. 获取PD控制器增益
+        # 比例增益，控制响应的快慢
         p_gains = self.p_gains
+        # 微分增益，提供阻尼，抑制震荡
         d_gains = self.d_gains
+        # 3. 计算扭矩
+        # actions_scaled + self.default_dof_pos - self.dof_pos
+        # actions_scaled：目标位置的偏移量
+        # default_dof_pos：关节默认位置
+        # dof_pos：当前关节位置
+        # 整体表示位置误差
+
+        # p_gains * (位置误差)
+        # 比例项
+        # 产生与位置误差成比例的扭矩
+        # 使关节趋向目标位置
+
+        # d_gains * self.dof_vel
+        # 微分项
+        # dof_vel是关节速度
+        # 提供速度阻尼
+        # 抑制过冲和震荡
         torques = p_gains * (actions_scaled + self.default_dof_pos - self.dof_pos) - d_gains * self.dof_vel
+        # 将计算出的扭矩限制在电机物理限制范围内
+        # 防止输出过大的扭矩损坏电机
+        # torque_limits由机器人硬件特性决定
         return torch.clip(torques, -self.torque_limits, self.torque_limits)
 
-    
     def _reset_dofs(self, env_ids):
         """ Resets DOF position and velocities of selected environmments
         Positions are randomly selected within 0.5:1.5 x default positions.
@@ -432,27 +469,32 @@ class LeggedRobot(BaseTask):
 
     #----------------------------------------
     def _init_buffers(self):
-        """ Initialize torch tensors which will contain simulation states and processed quantities
-        """
-        # get gym GPU state tensors
+        # 从物理引擎获取状态张量
+        # 获取机器人根部状态
         actor_root_state = self.gym.acquire_actor_root_state_tensor(self.sim)
+        # 获取关节状态
         dof_state_tensor = self.gym.acquire_dof_state_tensor(self.sim)
+        # 获取接触力
         net_contact_forces = self.gym.acquire_net_contact_force_tensor(self.sim)
+        # 获取刚体状态
         rigid_body_state = self.gym.acquire_rigid_body_state_tensor(self.sim)
 
+        # 刷新所有状态张量
         self.gym.refresh_dof_state_tensor(self.sim)
         self.gym.refresh_actor_root_state_tensor(self.sim)
         self.gym.refresh_net_contact_force_tensor(self.sim)
         self.gym.refresh_rigid_body_state_tensor(self.sim)
 
-        # create some wrapper tensors for different slices
+        # 包装基础状态张量并创建视图
         self.root_states = gymtorch.wrap_tensor(actor_root_state)
         self.dof_state = gymtorch.wrap_tensor(dof_state_tensor)
+        # 分离关节位置和速度
         self.dof_pos = self.dof_state.view(self.num_envs, self.num_dof, 2)[..., 0]
         self.dof_vel = self.dof_state.view(self.num_envs, self.num_dof, 2)[..., 1]
+        # 提取姿态信息
         self.base_quat = self.root_states[:, 3:7]
         self.base_euler_xyz = get_euler_xyz_tensor(self.base_quat)
-
+        # 处理接触力和刚体状态
         self.contact_forces = gymtorch.wrap_tensor(net_contact_forces).view(self.num_envs, -1, 3) # shape: num_envs, num_bodies, xyz axis
         self.rigid_state = gymtorch.wrap_tensor(rigid_body_state).view(self.num_envs, -1, 13)
 
