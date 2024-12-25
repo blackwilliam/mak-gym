@@ -1,71 +1,5 @@
 from humanoid.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCfgPPO
 
-# frame_stack = 15              # 堆叠15帧观察数据
-# num_single_obs = 47          # 单帧观察维度为47
-# num_observations = int(frame_stack * num_single_obs)  # 总观察维度
-# num_actions = 12             # 动作空间维度为12（对应12个关节）
-# num_envs = 4096             # 并行环境数量
-# episode_length_s = 24        # 每个回合24秒
-
-# pos_limit = 1.0             # 位置限制
-# vel_limit = 1.0             # 速度限制
-# torque_limit = 0.85         # 扭矩限制为最大值的85%
-
-# file = '...XBot-L.urdf'     # 机器人URDF文件路径
-# foot_name = "ankle_roll"    # 脚踝关节名称
-# terminate_after_contacts_on = ['base_link']  # 机身接触地面时终止
-# self_collisions = 0         # 启用自碰撞检测
-
-# mesh_type = 'plane'         # 地形类型：平面
-# static_friction = 0.6       # 静摩擦系数
-# dynamic_friction = 0.6      # 动摩擦系数
-# terrain_length = 8.         # 地形长度
-# terrain_proportions = [0.2, 0.2, 0.4, 0.1, 0.1, 0, 0]  # 不同地形类型的比例
-
-# noise_level = 0.6           # 噪声水平
-# # 各种状态量的噪声比例
-# noise_scales:
-#     dof_pos = 0.05         # 关节位置噪声
-#     dof_vel = 0.5          # 关节速度噪声
-#     quat = 0.03           # 四元数噪声
-
-# pos = [0.0, 0.0, 0.95]     # 初始位置
-# default_joint_angles = {...} # 默认关节角度配置
-
-# stiffness = {'leg_roll': 200.0, ...}  # 各关节刚度
-# damping = {'leg_roll': 10, ...}       # 各关节阻尼
-# action_scale = 0.25                   # 动作缩放比例
-# decimation = 10                       # 控制频率降采样（100Hz）
-
-# dt = 0.001                  # 仿真时间步长（1000Hz）
-# up_axis = 1                 # 向上轴为z轴
-#
-# randomize_friction = True   # 随机化摩擦系数
-# friction_range = [0.1, 2.0] # 摩擦系数范围
-# push_robots = True         # 启用随机推动
-# push_interval_s = 4        # 推动间隔
-#
-# ranges:
-#     lin_vel_x = [-0.3, 0.6]    # 前进速度范围
-#     lin_vel_y = [-0.3, 0.3]    # 侧向速度范围
-#     ang_vel_yaw = [-0.3, 0.3]  # 转向速度范围
-#
-# base_height_target = 0.89      # 目标躯干高度
-# tracking_sigma = 5             # 跟踪奖励系数
-# scales: # 不同奖励项的权重
-#     joint_pos = 1.6           # 关节位置奖励
-#     tracking_lin_vel = 1.2    # 速度跟踪奖励
-#     orientation = 1.          # 姿态奖励
-#
-# seed = 5                      # 随机种子
-# class policy:
-#     actor_hidden_dims = [512, 256, 128]   # Actor网络结构
-#     critic_hidden_dims = [768, 256, 128]  # Critic网络结构
-# class algorithm:
-#     learning_rate = 1e-5      # 学习率
-#     gamma = 0.994             # 折扣因子
-#     num_mini_batches = 4      # 小批量数量
-
 
 class BdXBotLCfg(LeggedRobotCfg):
 
@@ -348,13 +282,14 @@ class BdXBotLCfg(LeggedRobotCfg):
 
             # 接触相关权重
             # 接触力惩罚权重
-            feet_contact_forces = -0.01
+            # -0.01
+            feet_contact_forces = 0.1
 
             # 速度跟踪权重
-            # 线速度跟踪权重
-            tracking_lin_vel = 0.8
-            # 角速度跟踪权重
-            tracking_ang_vel = 0.4
+            # 线速度跟踪权重 0.8
+            tracking_lin_vel = 1.0
+            # 角速度跟踪权重 0.4
+            tracking_ang_vel = 0.5
             # 速度不匹配指数权重
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             # 低速奖励权重
@@ -365,8 +300,8 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 姿态相关权重
             # 默认关节位置权重
             default_joint_pos = 0.5
-            # 方向跟踪权重
-            orientation = 1.2
+            # 方向跟踪权重 1.2
+            orientation = 0.4
             # 基座高度维持权重
             base_height = 0.3
             # 基座加速度权重
@@ -377,10 +312,10 @@ class BdXBotLCfg(LeggedRobotCfg):
             action_smoothness = -0.002
             # 关节力矩使用惩罚
             torques = -0.0003
-            # 关节速度惩罚
-            dof_vel = -5e-4
-            # 关节加速度惩罚
-            dof_acc = -1e-7
+            # 关节速度惩罚 -5e-4
+            dof_vel = 0.03
+            # 关节加速度惩罚 -1e-7
+            dof_acc = 0.02
             # 碰撞惩罚
             collision = -1.
 
