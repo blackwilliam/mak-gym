@@ -270,7 +270,7 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 足部离地间隙权重
             feet_clearance = 1.
             # 足部接触数量权重
-            feet_contact_number = 1.2
+            feet_contact_number = 1.5
 
             # 步态相关权重
             # 足部悬空时间权重
@@ -287,9 +287,9 @@ class BdXBotLCfg(LeggedRobotCfg):
 
             # 速度跟踪权重
             # 线速度跟踪权重 0.8
-            tracking_lin_vel = 1.0
+            tracking_lin_vel = 1.5
             # 角速度跟踪权重 0.4
-            tracking_ang_vel = 0.5
+            tracking_ang_vel = 0.8
             # 速度不匹配指数权重
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             # 低速奖励权重
@@ -309,7 +309,7 @@ class BdXBotLCfg(LeggedRobotCfg):
 
             # 能量效率相关权重
             # 动作平滑度惩罚
-            action_smoothness = -0.002
+            action_smoothness = -0.005
             # 关节力矩使用惩罚
             torques = -0.0003
             # 关节速度惩罚 -5e-4
@@ -337,16 +337,18 @@ class BdXBotLCfgPPO(LeggedRobotCfgPPO):
 
     class policy:
         init_noise_std = 1.0
-        actor_hidden_dims = [512, 256, 128]
-        critic_hidden_dims = [768, 256, 128]
+        # [512, 256, 128]
+        actor_hidden_dims = [512, 384, 128]
+        critic_hidden_dims = [768, 384, 128]
 
     class algorithm(LeggedRobotCfgPPO.algorithm):
         entropy_coef = 0.001
-        learning_rate = 1e-5
-        num_learning_epochs = 2
+        # 1e-5
+        learning_rate = 5e-5
+        num_learning_epochs = 4
         gamma = 0.994
         lam = 0.9
-        num_mini_batches = 4
+        num_mini_batches = 8
 
     class runner:
         policy_class_name = 'ActorCritic'
