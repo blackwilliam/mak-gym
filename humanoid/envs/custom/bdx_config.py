@@ -360,7 +360,7 @@ class BdXBotLCfgPPO(LeggedRobotCfgPPO):
         algorithm_class_name = 'PPO'
         num_steps_per_env = 60  # per iteration
         # 3001
-        max_iterations = 3001
+        max_iterations = 6001
 
         # logging
         save_interval = 100  # Please check for potential savings every `save_interval` iterations.
