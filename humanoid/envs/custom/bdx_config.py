@@ -95,7 +95,7 @@ class BdXBotLCfg(LeggedRobotCfg):
         num_cols = 20  # number of terrain cols (types)
 
         # 初始课程状态
-        max_init_terrain_level = 10  # starting curriculum state
+        max_init_terrain_level = 5  # starting curriculum state
         # plane; obstacles; uniform; slope_up; slope_down, stair_up, stair_down
         # 不同类型地形的比例分布：
         # 依次代表：
@@ -106,7 +106,8 @@ class BdXBotLCfg(LeggedRobotCfg):
         # - 下坡 (10%)
         # - 上楼梯 (0%)
         # - 下楼梯 (0%)
-        terrain_proportions = [0.2, 0.2, 0.4, 0.1, 0.1, 0, 0]
+        terrain_proportions = [0.4, 0.1, 0.3, 0.1, 0.1, 0, 0]
+            # [0.2, 0.2, 0.4, 0.1, 0.1, 0, 0]
 
         # 弹性系数（碰撞恢复系数）
         restitution = 0.
@@ -154,15 +155,15 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 需要最大刚度支撑身体重量
             # 影响前后平衡和推进力
             # 关系到步态稳定性
-            'hip_pitch': 80.0,  # 髋部俯仰需要大刚度支撑身体
+            'hip_pitch': 100.0,  # 髋部俯仰需要大刚度支撑身体
             # 需要大刚度支撑身体
             # 影响腿部伸展和屈曲
             # 关系到着地缓冲和推进
-            'knee': 80.0,  # 膝盖需要大刚度支撑身体
+            'knee': 100.0,  # 膝盖需要大刚度支撑身体
             # 需要适中刚度保持平衡
             # 影响足底适应地形
             # 关系到步态平稳性
-            'ankle': 80.0,  # 踝关节需要适中刚度保持平衡
+            'ankle': 100.0,  # 踝关节需要适中刚度保持平衡
         }
         # 阻尼
         # 一般设置为刚度的 4-6%
@@ -232,9 +233,12 @@ class BdXBotLCfg(LeggedRobotCfg):
         heading_command = True
 
         class ranges:
-            lin_vel_x = [-0.2, 0.5]   # min max [m/s]
-            lin_vel_y = [-0.2, 0.2]   # min max [m/s]
-            ang_vel_yaw = [-0.25, 0.25] # min max [rad/s]
+            lin_vel_x = [-0.1, 0.3]
+                # [-0.2, 0.5]   # min max [m/s]
+            lin_vel_y = [-0.1, 0.1]
+                # [-0.2, 0.2]   # min max [m/s]
+            ang_vel_yaw = [-0.2, 0.2]
+                # [-0.25, 0.25] # min max [rad/s]
             heading = [-3.14, 3.14]
 
     class rewards:
@@ -268,9 +272,9 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 关节位置跟踪权重
             joint_pos = 0.25
             # 足部离地间隙权重
-            feet_clearance = 1.
+            feet_clearance = 1.5
             # 足部接触数量权重
-            feet_contact_number = 1.5
+            feet_contact_number = 2.0
 
             # 步态相关权重
             # 足部悬空时间权重
@@ -287,13 +291,13 @@ class BdXBotLCfg(LeggedRobotCfg):
 
             # 速度跟踪权重
             # 线速度跟踪权重 0.8
-            tracking_lin_vel = 1.5
+            tracking_lin_vel = 2.0
             # 角速度跟踪权重 0.4
-            tracking_ang_vel = 0.8
+            tracking_ang_vel = 1.2
             # 速度不匹配指数权重
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             # 低速奖励权重
-            low_speed = 0.2
+            low_speed = 0.4
             # 严格速度跟踪权重
             track_vel_hard = 0.5
 
@@ -301,7 +305,7 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 默认关节位置权重
             default_joint_pos = 0.5
             # 方向跟踪权重 1.2
-            orientation = 0.4
+            orientation = 0.8
             # 基座高度维持权重
             base_height = 0.3
             # 基座加速度权重
@@ -309,13 +313,13 @@ class BdXBotLCfg(LeggedRobotCfg):
 
             # 能量效率相关权重
             # 动作平滑度惩罚
-            action_smoothness = -0.005
+            action_smoothness = -0.01
             # 关节力矩使用惩罚
             torques = -0.0003
             # 关节速度惩罚 -5e-4
-            dof_vel = 0.03
+            dof_vel = 0.01
             # 关节加速度惩罚 -1e-7
-            dof_acc = 0.02
+            dof_acc = 0.005
             # 碰撞惩罚
             collision = -1.
 
@@ -344,9 +348,9 @@ class BdXBotLCfgPPO(LeggedRobotCfgPPO):
     class algorithm(LeggedRobotCfgPPO.algorithm):
         entropy_coef = 0.001
         # 1e-5
-        learning_rate = 5e-5
-        num_learning_epochs = 4
-        gamma = 0.994
+        learning_rate = 1e-5
+        num_learning_epochs = 6
+        gamma = 0.997
         lam = 0.9
         num_mini_batches = 8
 
