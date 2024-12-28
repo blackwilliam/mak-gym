@@ -1,24 +1,27 @@
 import os
 import sys
 import numpy as np
-sys.path.append("/opt/openrobots/lib/python3.8/site-packages")
+
 import pinocchio
 import crocoddyl
 from pinocchio.robot_wrapper import RobotWrapper
+
 
 current_directory = os.getcwd()
 print("上层路径：", current_directory)
 
 # change path ??
-modelPath = current_directory + '/resources/XBot'
-URDF_FILENAME = "urdf/go_bdx.urdf"
+modelPath = current_directory + '/resources/robot/bdx'
+URDF_FILENAME = "go_bdx.urdf"
 
 # Load the full model
-rrobot = RobotWrapper.BuildFromURDF(modelPath + URDF_FILENAME, [modelPath], pinocchio.JointModelFreeFlyer())  # Load URDF file
+rrobot = RobotWrapper.BuildFromURDF(
+    modelPath + URDF_FILENAME,
+    [modelPath], pinocchio.JointModelFreeFlyer())  # Load URDF file
 rmodel = rrobot.model
 
-rightFoot = 'right_ankle_roll_link'
-leftFoot = 'left_ankle_roll_link'
+rightFoot = 'right_foot_link'
+leftFoot = 'left_foot_link'
 
 display = crocoddyl.MeshcatDisplay(
     rrobot, frameNames=[rightFoot, leftFoot]
@@ -38,6 +41,7 @@ rfFootPos0 = rdata.oMf[rfId].translation
 lfFootPos0 = rdata.oMf[lfId].translation
 
 comRef = pinocchio.centerOfMass(rmodel, rdata, q0)
+
 
 for i in range(rrobot.model.nq-7):
     q0 = pinocchio.utils.zero(rrobot.model.nq)

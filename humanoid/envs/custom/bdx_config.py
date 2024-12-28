@@ -74,7 +74,7 @@ class BdXBotLCfg(LeggedRobotCfg):
         # mesh_type = 'trimesh'
 
         # 是否启用课程学习，逐步增加地形难度
-        curriculum = True
+        curriculum = False
         # rough terrain only:
         # 是否测量地形高度
         measure_heights = False
@@ -95,7 +95,7 @@ class BdXBotLCfg(LeggedRobotCfg):
         num_cols = 20  # number of terrain cols (types)
 
         # 初始课程状态
-        max_init_terrain_level = 5  # starting curriculum state
+        max_init_terrain_level = 10  # starting curriculum state
         # plane; obstacles; uniform; slope_up; slope_down, stair_up, stair_down
         # 不同类型地形的比例分布：
         # 依次代表：
@@ -106,7 +106,8 @@ class BdXBotLCfg(LeggedRobotCfg):
         # - 下坡 (10%)
         # - 上楼梯 (0%)
         # - 下楼梯 (0%)
-        terrain_proportions = [0.4, 0.1, 0.3, 0.1, 0.1, 0, 0]
+        terrain_proportions = [0.2, 0.2, 0.4, 0.1, 0.1, 0, 0]
+            # [0.4, 0.1, 0.3, 0.1, 0.1, 0, 0]
             # [0.2, 0.2, 0.4, 0.1, 0.1, 0, 0]
 
         # 弹性系数（碰撞恢复系数）
@@ -155,15 +156,15 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 需要最大刚度支撑身体重量
             # 影响前后平衡和推进力
             # 关系到步态稳定性
-            'hip_pitch': 100.0,  # 髋部俯仰需要大刚度支撑身体
+            'hip_pitch': 80.0,  # 髋部俯仰需要大刚度支撑身体
             # 需要大刚度支撑身体
             # 影响腿部伸展和屈曲
             # 关系到着地缓冲和推进
-            'knee': 100.0,  # 膝盖需要大刚度支撑身体
+            'knee': 15.0,  # 膝盖需要大刚度支撑身体
             # 需要适中刚度保持平衡
             # 影响足底适应地形
             # 关系到步态平稳性
-            'ankle': 100.0,  # 踝关节需要适中刚度保持平衡
+            'ankle': 15.0,  # 踝关节需要适中刚度保持平衡
         }
         # 阻尼
         # 一般设置为刚度的 4-6%
@@ -198,10 +199,10 @@ class BdXBotLCfg(LeggedRobotCfg):
         up_axis = 1  # 0 is y, 1 is z
 
         class physx(LeggedRobotCfg.sim.physx):
-            num_threads = 10
+            num_threads = 20
             solver_type = 1  # 0: pgs, 1: tgs
             num_position_iterations = 4
-            num_velocity_iterations = 1
+            num_velocity_iterations = 0
             contact_offset = 0.01  # [m]
             rest_offset = 0.0   # [m]
             bounce_threshold_velocity = 0.1  # [m/s]
@@ -233,11 +234,11 @@ class BdXBotLCfg(LeggedRobotCfg):
         heading_command = True
 
         class ranges:
-            lin_vel_x = [-0.1, 0.3]
+            lin_vel_x = [-0.3, 0.6]
                 # [-0.2, 0.5]   # min max [m/s]
-            lin_vel_y = [-0.1, 0.1]
+            lin_vel_y = [-0.3, 0.3]
                 # [-0.2, 0.2]   # min max [m/s]
-            ang_vel_yaw = [-0.2, 0.2]
+            ang_vel_yaw = [-0.3, 0.3]
                 # [-0.25, 0.25] # min max [rad/s]
             heading = [-3.14, 3.14]
 
@@ -248,17 +249,17 @@ class BdXBotLCfg(LeggedRobotCfg):
 
         # 运动参考参数
         # 关节位置目标范围(弧度)
-        target_joint_pos_scale = 0.15    # rad
+        target_joint_pos_scale = 0.17    # rad
         # 足部目标高度(米)
-        target_feet_height = 0.05        # m
+        target_feet_height = 0.06        # m
         # 步态周期(秒)
-        cycle_time = 0.7                # sec
+        cycle_time = 0.64                # sec
 
         # 奖励限制参数
         # 将负奖励截断为0
         only_positive_rewards = True
         # 跟踪奖励系数
-        tracking_sigma = 4
+        tracking_sigma = 5
         # 最大接触力限制(N)
         max_contact_force = 700
 
@@ -270,11 +271,11 @@ class BdXBotLCfg(LeggedRobotCfg):
         class scales:
             # 运动跟踪相关权重
             # 关节位置跟踪权重
-            joint_pos = 0.25
+            joint_pos = 1.6
             # 足部离地间隙权重
-            feet_clearance = 1.5
+            feet_clearance = 1.
             # 足部接触数量权重
-            feet_contact_number = 2.0
+            feet_contact_number = 1.2
 
             # 步态相关权重
             # 足部悬空时间权重
@@ -282,22 +283,22 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 足部滑动惩罚权重
             foot_slip = -0.05
             # 足部间距权重
-            feet_distance = 0.2
+            feet_distance = 0.16
 
             # 接触相关权重
             # 接触力惩罚权重
             # -0.01
-            feet_contact_forces = 0.1
+            feet_contact_forces = -0.01
 
             # 速度跟踪权重
             # 线速度跟踪权重 0.8
-            tracking_lin_vel = 2.0
+            tracking_lin_vel = 1.2
             # 角速度跟踪权重 0.4
-            tracking_ang_vel = 1.2
+            tracking_ang_vel = 1.1
             # 速度不匹配指数权重
             vel_mismatch_exp = 0.5  # lin_z; ang x,y
             # 低速奖励权重
-            low_speed = 0.4
+            low_speed = 0.2
             # 严格速度跟踪权重
             track_vel_hard = 0.5
 
@@ -305,28 +306,28 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 默认关节位置权重
             default_joint_pos = 0.5
             # 方向跟踪权重 1.2
-            orientation = 0.8
+            orientation = 1.
             # 基座高度维持权重
-            base_height = 0.3
+            base_height = 0.2
             # 基座加速度权重
             base_acc = 0.2
 
             # 能量效率相关权重
             # 动作平滑度惩罚
-            action_smoothness = -0.01
+            action_smoothness = -0.02
             # 关节力矩使用惩罚
-            torques = -0.0003
+            torques = -1e-5
             # 关节速度惩罚 -5e-4
-            dof_vel = 0.01
+            dof_vel = -5e-4
             # 关节加速度惩罚 -1e-7
-            dof_acc = 0.005
+            dof_acc = -1e-7
             # 碰撞惩罚
             collision = -1.
 
     class normalization:
         class obs_scales:
             lin_vel = 2.
-            ang_vel = 0.25
+            ang_vel = 1.
             dof_pos = 1.
             dof_vel = 0.05
             quat = 1.
@@ -342,24 +343,24 @@ class BdXBotLCfgPPO(LeggedRobotCfgPPO):
     class policy:
         init_noise_std = 1.0
         # [512, 256, 128]
-        actor_hidden_dims = [512, 384, 128]
-        critic_hidden_dims = [768, 384, 128]
+        actor_hidden_dims = [512, 256, 128]
+        critic_hidden_dims = [768, 256, 128]
 
     class algorithm(LeggedRobotCfgPPO.algorithm):
         entropy_coef = 0.001
         # 1e-5
         learning_rate = 1e-5
-        num_learning_epochs = 6
-        gamma = 0.997
+        num_learning_epochs = 2
+        gamma = 0.994
         lam = 0.9
-        num_mini_batches = 8
+        num_mini_batches = 4
 
     class runner:
         policy_class_name = 'ActorCritic'
         algorithm_class_name = 'PPO'
         num_steps_per_env = 60  # per iteration
         # 3001
-        max_iterations = 6001
+        max_iterations = 3001
 
         # logging
         save_interval = 100  # Please check for potential savings every `save_interval` iterations.
