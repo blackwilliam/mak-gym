@@ -57,7 +57,7 @@ def play(args):
     env_cfg.terrain.curriculum = False     
     env_cfg.terrain.max_init_terrain_level = 5
     env_cfg.noise.add_noise = True
-    env_cfg.domain_rand.push_robots = False 
+    env_cfg.domain_rand.push_robots = False
     env_cfg.domain_rand.joint_angle_noise = 0.
     env_cfg.noise.curriculum = False
     env_cfg.noise.noise_level = 0.5
@@ -85,7 +85,7 @@ def play(args):
     logger = Logger(env.dt)
     robot_index = 0 # which robot is used for logging
     joint_index = 1 # which joint is used for logging
-    stop_state_log = 1200 # number of steps before plotting states
+    stop_state_log = 3200 # number of steps before plotting states
     if RENDER:
         camera_properties = gymapi.CameraProperties()
         camera_properties.width = 1920
