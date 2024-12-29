@@ -55,9 +55,9 @@ Thumbs.db
 # VS Code
 .vscode
 # logs
-logs
+#logs
 runs
-videos
+#videos
 # resources
 
 # other
