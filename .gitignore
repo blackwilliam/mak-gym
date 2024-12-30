@@ -45,20 +45,21 @@ Thumbs.db
 *.war
 
 # Large media files
-*.mp4
-*.tiff
-*.avi
-*.flv
-*.mov
-*.wmv
+#*.mp4
+#*.tiff
+#*.avi
+#*.flv
+#*.mov
+#*.wmv
+
+nohup.out
 
 # VS Code
 .vscode
-# logs
-#logs
+logs
 runs
 #videos
-# resources
+#resources
 
 # other
 *.egg-info
