@@ -56,7 +56,7 @@ nohup.out
 
 # VS Code
 .vscode
-logs
+#logs
 runs
 #videos
 #resources
