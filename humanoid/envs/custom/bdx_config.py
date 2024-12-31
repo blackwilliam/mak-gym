@@ -155,16 +155,16 @@ class BdXBotLCfg(LeggedRobotCfg):
             'hip_roll': 40.0,  # 髋部滚动需要较大刚度保持稳定
             # 需要最大刚度支撑身体重量
             # 影响前后平衡和推进力
-            # 关系到步态稳定性
-            'hip_pitch': 80.0,  # 髋部俯仰需要大刚度支撑身体
+            # 关系到步态稳定性 80
+            'hip_pitch': 100.0,  # 髋部俯仰需要大刚度支撑身体
             # 需要大刚度支撑身体
             # 影响腿部伸展和屈曲
-            # 关系到着地缓冲和推进
-            'knee': 15.0,  # 膝盖需要大刚度支撑身体
+            # 关系到着地缓冲和推进 15
+            'knee': 20.0,  # 膝盖需要大刚度支撑身体
             # 需要适中刚度保持平衡
             # 影响足底适应地形
-            # 关系到步态平稳性
-            'ankle': 15.0,  # 踝关节需要适中刚度保持平衡
+            # 关系到步态平稳性 15
+            'ankle': 20.0,  # 踝关节需要适中刚度保持平衡
         }
         # 阻尼
         # 一般设置为刚度的 4-6%
@@ -174,9 +174,9 @@ class BdXBotLCfg(LeggedRobotCfg):
         damping = {
             'hip_yaw': 0.25,
             'hip_roll': 0.25,
-            'hip_pitch': 0.25,
-            'knee': 0.25,
-            'ankle': 0.25,
+            'hip_pitch': 0.3, # 0.25
+            'knee': 0.3, # 0.25
+            'ankle': 0.3, # 0.25
         }
         # 0.2表示动作范围是默认角度的±20%
         # 较小的值可以：
@@ -243,15 +243,16 @@ class BdXBotLCfg(LeggedRobotCfg):
             heading = [-3.14, 3.14]
 
     class rewards:
-        base_height_target = 0.33
+        # 0.33
+        base_height_target = 0.35
         min_dist = 0.15
         max_dist = 0.2
 
         # 运动参考参数
         # 关节位置目标范围(弧度)
         target_joint_pos_scale = 0.17    # rad
-        # 足部目标高度(米)
-        target_feet_height = 0.06        # m
+        # 足部目标高度(米) 0.06
+        target_feet_height = 0.08        # m
         # 步态周期(秒)
         cycle_time = 0.64                # sec
 
@@ -270,10 +271,10 @@ class BdXBotLCfg(LeggedRobotCfg):
 
         class scales:
             # 运动跟踪相关权重
-            # 关节位置跟踪权重
-            joint_pos = 1.6
-            # 足部离地间隙权重
-            feet_clearance = 1.
+            # 关节位置跟踪权重 1.6
+            joint_pos = 2.0
+            # 足部离地间隙权重 1.
+            feet_clearance = 1.5
             # 足部接触数量权重
             feet_contact_number = 1.2
 
@@ -305,10 +306,10 @@ class BdXBotLCfg(LeggedRobotCfg):
             # 姿态相关权重
             # 默认关节位置权重
             default_joint_pos = 0.5
-            # 方向跟踪权重 1.2
-            orientation = 1.
-            # 基座高度维持权重
-            base_height = 0.2
+            # 方向跟踪权重 1.
+            orientation = 1.5
+            # 基座高度维持权重 0.2
+            base_height = 0.4
             # 基座加速度权重
             base_acc = 0.2
 
@@ -349,11 +350,11 @@ class BdXBotLCfgPPO(LeggedRobotCfgPPO):
     class algorithm(LeggedRobotCfgPPO.algorithm):
         entropy_coef = 0.001
         # 1e-5
-        learning_rate = 1e-5
-        num_learning_epochs = 2
+        learning_rate = 2e-5
+        num_learning_epochs = 3 # 2
         gamma = 0.994
         lam = 0.9
-        num_mini_batches = 4
+        num_mini_batches = 8 # 4
 
     class runner:
         policy_class_name = 'ActorCritic'
