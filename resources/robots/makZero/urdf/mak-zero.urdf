@@ -1,3 +1,9 @@
+<mujoco>
+  <compiler
+        meshdir="../meshes/"
+        balanceinertia="true"
+        discardvisual="false" />
+</mujoco>
 <?xml version="1.0" ?>
 <robot name="mak-zero">
     <material name="silver">
@@ -116,7 +122,7 @@
         <geometry>
           <mesh filename="meshes/pelvis.stl" scale="0.001 0.001 0.001"/>
         </geometry>
-        <material name="silver"/><material/>
+        <material name="silver"/>
       </visual>
     </link>
     <link name="left_foot">
@@ -144,7 +150,6 @@
           <mesh filename="meshes/left_foot.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.07448 -0.109877 -0.089995" rpy="0 0 0"/>
@@ -184,7 +189,6 @@
           <mesh filename="meshes/left_shin.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.118906 -0.149877 -0.224769" rpy="0 0 0"/>
@@ -205,7 +209,6 @@
           <mesh filename="meshes/left_thigh.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.029933 -0.149877 -0.292285" rpy="0 0 0"/>
@@ -226,7 +229,6 @@
           <mesh filename="meshes/left_hip.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.058783 -0.048077 -0.292841" rpy="0 0 0"/>
@@ -247,7 +249,6 @@
           <mesh filename="meshes/left_hip_rotation.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.046575 -0.048318 -0.381049" rpy="0 0 0"/>
@@ -320,7 +321,6 @@
           <mesh filename="meshes/right_shin.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.124071 0.153023 -0.226332" rpy="0 0 0"/>
@@ -341,7 +341,6 @@
           <mesh filename="meshes/right_thigh.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.033933 0.153023 -0.292285" rpy="0 0 0"/>
@@ -362,7 +361,6 @@
           <mesh filename="meshes/right_hip.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.058783 0.051923 -0.292841" rpy="0 0 0"/>
@@ -383,7 +381,6 @@
           <mesh filename="meshes/right_hip_rotation.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
-        <material/>
       </visual>
       <collision>
         <origin xyz="0.046575 0.051682 -0.381049" rpy="0 0 0"/>
