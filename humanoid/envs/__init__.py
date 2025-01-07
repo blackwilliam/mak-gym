@@ -30,16 +30,18 @@
 # Copyright (c) 2024 Beijing RobotEra TECHNOLOGY CO.,LTD. All rights reserved.
 
 
-from humanoid import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
 from .base.legged_robot import LeggedRobot
 
 from .custom.humanoid_config import XBotLCfg, XBotLCfgPPO
 from .custom.humanoid_env import XBotLFreeEnv
 from .custom.bdx_config import BdXBotLCfg, BdXBotLCfgPPO
 from .custom.bdx_env import BdXBotLFreeEnv
+from .custom.mak_config import MakBotLCfg, MakBotLCfgPPO
+from .custom.mak_env import MakBotLFreeEnv
 
 from humanoid.utils.task_registry import task_registry
 
 
 task_registry.register( "humanoid_ppo", XBotLFreeEnv, XBotLCfg(), XBotLCfgPPO())
 task_registry.register( "BdXBot_ppo", BdXBotLFreeEnv, BdXBotLCfg(), BdXBotLCfgPPO())
+task_registry.register( "makZero_ppo", MakBotLFreeEnv, MakBotLCfg(), MakBotLCfgPPO())
