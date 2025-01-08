@@ -108,7 +108,7 @@
     <link name="pelvis">
       <inertial>
         <origin xyz="-0.053755951684186565 0.0011833805784402802 0.3419474505132109" rpy="0 0 0"/>
-        <mass value="5.713""/>
+        <mass value="5.713"/>
         <inertia ixx="0.201691" iyy="0.431684" izz="0.371809" ixy="-0.002118" iyz="-0.001502" ixz="0.016433"/>
       </inertial>
       <visual>

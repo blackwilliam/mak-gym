@@ -56,9 +56,9 @@ nohup.out
 
 # VS Code
 .vscode
-#logs
+logs/BdXBot_ppo/*
 runs
-#videos
+videos
 #resources
 
 # other
