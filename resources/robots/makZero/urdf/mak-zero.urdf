@@ -1,5 +1,18 @@
 <?xml version="1.0" ?>
 <robot name="mak-zero">
+   <mujoco>
+        <compiler
+            meshdir="../meshes/"
+            balanceinertia="true"
+            discardvisual="false" />
+    </mujoco>
+
+   <!-- [CAUTION] uncomment when convert to mujoco -->
+    <link name="world"></link>
+    <joint name="floating_base_joint" type="floating">
+        <parent link="world" />
+        <child link="pelvis" />
+    </joint>
     <material name="silver">
       <color rgba="0.700 0.700 0.700 1.000"/>
     </material>

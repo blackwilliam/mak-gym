@@ -1,0 +1,91 @@
+<mujoco model="mak-zero">
+  <compiler angle="radian" />
+
+  <asset>
+    <mesh name="pelvis" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/pelvis.stl" scale="0.001 0.001 0.001" />
+    <mesh name="left_foot" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/left_foot.stl" scale="0.001 0.001 0.001" />
+    <mesh name="left_shin" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/left_shin.stl" scale="0.001 0.001 0.001" />
+    <mesh name="left_thigh" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/left_thigh.stl" scale="0.001 0.001 0.001" />
+    <mesh name="left_hip" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/left_hip.stl" scale="0.001 0.001 0.001" />
+    <mesh name="left_hip_rotation" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/left_hip_rotation.stl" scale="0.001 0.001 0.001" />
+    <mesh name="right_foot" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/right_foot.stl" scale="0.001 0.001 0.001" />
+    <mesh name="right_shin" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/right_shin.stl" scale="0.001 0.001 0.001" />
+    <mesh name="right_thigh" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/right_thigh.stl" scale="0.001 0.001 0.001" />
+    <mesh name="right_hip" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/right_hip.stl" scale="0.001 0.001 0.001" />
+    <mesh name="right_hip_rotation" file="/Users/wangxiaochuan/wangxc/popmart/mak-gym/resources/robots/makZero/meshes/right_hip_rotation.stl" scale="0.001 0.001 0.001" />
+  </asset>
+
+  <worldbody>
+    <body name="pelvis">
+      <inertial pos="-0.053756 0.00118338 0.341947" quat="0.480275 0.513547 0.53279 0.470893" mass="5.713" diaginertia="0.43175 0.373333 0.200101" />
+      <body name="trunk" pos="-0.035 0 0.26943">
+        <inertial pos="0 0 0" mass="1e-09" diaginertia="0 0 0" />
+        <body name="imu_link">
+          <inertial pos="0 0 0" mass="0.001" diaginertia="0.0001 0.0001 0.0001" />
+        </body>
+      </body>
+      <body name="left_hip_rotation" pos="-0.046575 0.048318 0.381049">
+        <inertial pos="0.046575 -0.048318 -0.381049" quat="0.999573 0.0213461 0.0199274 0.00141326" mass="0.633" diaginertia="0.00533636 0.004183 0.00196963" />
+        <joint name="left_hip_yaw" pos="0 0 0" axis="0 0 -1" range="-0.349066 0.349066" actuatorfrcrange="-23.7 23.7" />
+        <geom pos="0.046575 -0.048318 -0.381049" type="mesh" rgba="0.7 0.7 0.7 1" mesh="left_hip_rotation" />
+        <body name="left_hip" pos="-0.012208 -0.000241 -0.088208">
+          <inertial pos="0.058783 -0.048077 -0.292841" quat="0.704899 0.708795 -0.00571972 -0.0263546" mass="0.633" diaginertia="0.00149816 0.00136791 0.000505934" />
+          <joint name="left_hip_roll" pos="0 0 0" axis="1 0 0" range="-0.174533 0.174533" actuatorfrcrange="-23.7 23.7" />
+          <geom pos="0.058783 -0.048077 -0.292841" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="left_hip" />
+          <body name="left_thigh" pos="0.02885 0.1018 -0.000556">
+            <inertial pos="0.029933 -0.149877 -0.292285" quat="0.633403 0.297734 0.294346 0.650781" mass="0.633" diaginertia="0.0473468 0.0413446 0.0120747" />
+            <joint name="left_hip_pitch" pos="0 0 0" axis="0 1 0" range="-0.523599 0.523599" actuatorfrcrange="-23.7 23.7" />
+            <geom pos="0.029933 -0.149877 -0.292285" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="left_thigh" />
+            <body name="left_shin" pos="-0.088973 0 -0.067516">
+              <inertial pos="0.118906 -0.149877 -0.224769" quat="0.708097 -0.166338 -0.130184 0.673783" mass="0.633" diaginertia="0.0117688 0.0102167 0.00215741" />
+              <joint name="left_knee" pos="0 0 0" axis="0 1 0" range="-0.523599 0.523599" actuatorfrcrange="-23.7 23.7" />
+              <geom pos="0.118906 -0.149877 -0.224769" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="left_shin" />
+              <body name="left_foot_link" pos="0.044426 -0.04 -0.134774">
+                <inertial pos="0.07448 -0.109877 -0.089995" quat="0.540863 0.468785 0.58167 0.386481" mass="0.678" diaginertia="0.0103795 0.00833717 0.00325637" />
+                <joint name="left_ankle" pos="0 0 0" axis="0 1 0" range="-0.523599 0.523599" actuatorfrcrange="-23.7 23.7" />
+                <geom pos="0.07448 -0.109877 -0.089995" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="left_foot" />
+                <body name="left_foot" pos="0.025 0 -0.0785">
+                  <inertial pos="0 0 0" mass="1e-09" diaginertia="0 0 0" />
+                  <body name="left_foot_force_sensor" pos="0 0 -0.001">
+                    <inertial pos="0 0 0" mass="0.001" diaginertia="0.0001 0.0001 0.0001" />
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="right_hip_rotation" pos="-0.046575 -0.051682 0.381049">
+        <inertial pos="0.046575 0.051682 -0.381049" quat="0.999573 -0.0213461 0.0199274 -0.00141326" mass="0.633" diaginertia="0.00533636 0.004183 0.00196963" />
+        <joint name="right_hip_yaw" pos="0 0 0" axis="0 0 -1" range="-0.349066 0.349066" actuatorfrcrange="-23.7 23.7" />
+        <geom pos="0.046575 0.051682 -0.381049" type="mesh" rgba="0.7 0.7 0.7 1" mesh="right_hip_rotation" />
+        <body name="right_hip" pos="-0.012208 -0.000241 -0.088208">
+          <inertial pos="0.058783 0.051923 -0.292841" quat="0.708795 0.704899 0.0263546 0.00571972" mass="0.633" diaginertia="0.00149816 0.00136791 0.000505934" />
+          <joint name="right_hip_roll" pos="0 0 0" axis="1 0 0" range="-0.174533 0.174533" actuatorfrcrange="-23.7 23.7" />
+          <geom pos="0.058783 0.051923 -0.292841" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="right_hip" />
+          <body name="right_thigh" pos="0.02485 -0.1011 -0.000556">
+            <inertial pos="0.033933 0.153023 -0.292285" quat="0.650781 0.294346 0.297734 0.633403" mass="0.633" diaginertia="0.0473468 0.0413446 0.0120747" />
+            <joint name="right_hip_pitch" pos="0 0 0" axis="0 -1 0" range="-0.523599 0.523599" actuatorfrcrange="-23.7 23.7" />
+            <geom pos="0.033933 0.153023 -0.292285" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="right_thigh" />
+            <body name="right_shin" pos="-0.090138 0 -0.065953">
+              <inertial pos="0.124071 0.153023 -0.226332" quat="0.673783 -0.130184 -0.166338 0.708097" mass="0.633" diaginertia="0.0117688 0.0102167 0.00215741" />
+              <joint name="right_knee" pos="0 0 0" axis="0 1 0" range="-0.523599 0.523599" actuatorfrcrange="-23.7 23.7" />
+              <geom pos="0.124071 0.153023 -0.226332" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="right_shin" />
+              <body name="right_foot_link" pos="0.042068 0.04 -0.135529">
+                <inertial pos="0.082003 0.113023 -0.090803" quat="0.386481 0.58167 0.468785 0.540863" mass="0.678" diaginertia="0.0103795 0.00833717 0.00325637" />
+                <joint name="right_ankle" pos="0 0 0" axis="0 -1 0" range="-0.523599 0.523599" actuatorfrcrange="-23.7 23.7" />
+                <geom pos="0.082003 0.113023 -0.090803" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="right_foot" />
+                <body name="right_foot" pos="0.025 0 -0.0785">
+                  <inertial pos="0 0 0" mass="1e-09" diaginertia="0 0 0" />
+                  <body name="right_foot_force_sensor" pos="0 0 -0.001">
+                    <inertial pos="0 0 0" mass="0.001" diaginertia="0.0001 0.0001 0.0001" />
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  <geom name="ground_plane" type="plane" size="5 5 10" material="MatPlane" rgba="1 1 1 1" /><light pos="0 0 1000" castshadow="true" /></worldbody>
+<asset><texture name="texplane" builtin="checker" height="512" width="512" rgb1=".2 .3 .4" rgb2=".1 .15 .2" type="2d" /><material name="MatPlane" reflectance="0.5" shininess="0.01" specular="0.1" texrepeat="1 1" texture="texplane" texuniform="true" /></asset></mujoco>
